@@ -1,0 +1,16 @@
+<h1 class="hero-title">SHADOWING</h1>
+<p class="hero-sub">Copie qualquer link do Youtube com legenda manual em inglês para estudar.</p>
+
+<form class="input-card" hx-get="/legenda" hx-target="main" hx-push-url="true">
+    <input type="text" name="link" class="url-input" placeholder="Cole o link do YouTube aqui..." required>
+    
+    <div class="btn-row">
+        <button type="submit" class="main-btn btn-load">CARREGAR VÍDEO</button>
+        <button type="submit" class="main-btn btn-practice"hx-get="/revisao" hx-target="main" hx-push-url="true">↺ <span class="btn-text-mobile">Revisar</span></button>
+
+    </div>
+</form>
+
+<div class="footer-tag">
+    Versão beta - pratique shadowing com qualquer video que quiser
+</div>

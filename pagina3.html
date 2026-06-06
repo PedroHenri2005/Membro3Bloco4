@@ -1,0 +1,45 @@
+<!-- [ MEMBRO 3 - BLOCO 4 ]: Adiciono aqui o exato mesmo submodal descrito na pagina2.html. -->
+ <div id="subModalCriarDeck" class="submodal-decks">
+    <div class="submodal-conteudo">
+        
+        <div class="submodal-cabecalho">
+            <span class="submodal-titulo">Criar novo Deck</span>
+            <button type="button" class="btn-X" id="btnCancelarSubModalX">&times;</button>
+        </div>
+
+        <div class="submodal-corpo">
+            <p class="submodal-texto-orientacao">Novo nome do Deck:</p>
+            <input type="text" id="novoNomeDeckInput" class="modal-input-text submodal-input-largura" autocomplete="off">
+        </div>
+
+        <div class="submodal-colecao-botoes">
+            <button type="button" id="btnConfirmarCriarDeck" class="modal-decks-btn btn-primary submodal-btn-largura">OK</button>
+            <button type="button" id="btnCancelarSubModal" class="modal-decks-btn submodal-btn-largura">Cancelar</button>
+        </div>
+        
+    </div>
+</div>
+
+<!-- [ MEMBRO 3 - BLOCO 4 ]: Nova pagina3.html, que implementa o Dashboard de Decks, incluindo a quantidade de Cards novos e a quantidade total deles em cada Deck.  -->
+<div class="dashboard-container animate-fade-in">
+    
+    <div class="card-board">
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th class="th-deck">Deck</th>
+                    <th class="th-novos text-blue">Novos</th>
+                    <th class="th-revisar text-green">Revisar</th>
+                    <th class="th-qtd-total text-yellow">Quantidade Total</th>
+                </tr>
+            </thead>
+            <tbody id="corpoTabelaDecksRevisao"> </tbody>
+        </table>
+    </div>
+
+    <div class="dashboard-actions-footer">
+        <button id="btnCriarDeckRevisao" class="btn-action btn-danger-outline">CRIAR DECK</button>
+        <button id="btnRenomearDeckRevisao" class="btn-action btn-danger-outline" disabled>RENOMEAR DECK</button>
+        <button id="btnDeletarDeckRevisao" class="btn-action btn-danger-outline" disabled>DELETAR DECK</button>
+    </div>
+</div>

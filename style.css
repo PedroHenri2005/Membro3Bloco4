@@ -1,0 +1,1093 @@
+/* ====================================================
+   VARIÁVEIS DE TEMA (Novo Design + Antigo Integrado)
+   ==================================================== */
+:root[data-theme="dark"] {
+    --bg-color: #0b0f19;
+    --nav-bg: rgba(15, 23, 42, 0.7);
+    --card-bg: rgba(30, 41, 59, 0.4);
+    --text-main: #ffffff;
+    --text-button: #ffffff;
+    --text-sub: #94a3b8;
+    --input-bg: #f8fafc;
+    --input-text: #0f172a;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --wave-opacity: 0.6;
+    --thumb-brightness: 0.6;
+
+    /* Variáveis antigas mapeadas para as novas cores */
+    --bg: #0b0f19;
+    --bg-button: #1e293b;
+    --button-hover: #334155;
+    --wave: #1e293b;
+    --button: white;
+    --legenda: rgba(30, 41, 59, 0.8);
+    --titulo: #ffffff;
+    --transcript: #ffffff;
+    --border: rgba(255, 255, 255, 0.1);
+    --icon-invert: 1;
+    --overlay-bg: rgba(11, 15, 25, 0.6);
+
+    /*Popup de Dicionário*/
+    --popup-bg: rgba(30, 41, 59, 0.95);
+    --popup-text: #ffffff;
+    --popup-muted: #94a3b8;
+    --popup-border: rgba(255, 255, 255, 0.15);
+}
+
+:root[data-theme="light"] {
+    --bg-color: #f1f5f9;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+    --card-bg: rgba(255, 255, 255, 0.6);
+    --text-main: #1e293b;
+    --text-button: black;
+    --text-sub: #64748b;
+    --input-bg: #ffffff;
+    --input-text: #0f172a;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --wave-opacity: 0.4;
+    --thumb-brightness: 0.9;
+
+    /* Variáveis antigas mapeadas para as novas cores */
+    --bg: #f4f4f4;
+    --bg-button: rgba(225, 225, 225, 0.8);
+    --button-hover: #999;
+    --wave: #ffffff;
+    --button: white;
+    --legenda: white;
+    --titulo: black;
+    --transcript: #333;
+    --border: rgba(0,0,0,0.2);
+    --icon-invert: 0;
+    --overlay-bg: rgba(255, 255, 255, 0.5);
+
+    /*Popup de Dicionário*/
+    --popup-bg: rgba(255, 255, 255, 0.95);
+    --popup-text: #1e293b;
+    --popup-muted: #64748b;
+    --popup-border: rgba(0, 0, 0, 0.15);
+}
+
+/* ====================================================
+   ESTRUTURA GLOBAL E NOVO DESIGN
+   ==================================================== */
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    margin: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* --- Fundo com Miniaturas Flutuantes --- */
+.thumbnails-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    filter: blur(12px) brightness(var(--thumb-brightness));
+    opacity: 0.45;
+}
+
+.thumb {
+    position: absolute;
+    border-radius: 16px;
+    object-fit: cover;
+    animation: floatThumb ease-in-out infinite alternate;
+}
+
+.t1 { top: 5%; left: 5%; width: 280px; height: 157px; animation-duration: 18s; animation-delay: 0s; }
+.t2 { top: 12%; right: 8%; width: 320px; height: 180px; animation-duration: 22s; animation-delay: -5s; }
+.t3 { bottom: 15%; left: 10%; width: 260px; height: 146px; animation-duration: 15s; animation-delay: -2s; }
+.t4 { bottom: 8%; right: 12%; width: 300px; height: 168px; animation-duration: 25s; animation-delay: -10s; }
+.t5 { top: 40%; left: -5%; width: 240px; height: 135px; animation-duration: 20s; animation-delay: -7s; }
+.t6 { top: 45%; right: -2%; width: 270px; height: 152px; animation-duration: 19s; animation-delay: -3s; }
+.t7 { top: -5%; left: 40%; width: 290px; height: 163px; animation-duration: 24s; animation-delay: -12s; }
+.t8 { bottom: -8%; right: 35%; width: 310px; height: 174px; animation-duration: 17s; animation-delay: -8s; }
+
+@keyframes floatThumb {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(15px, -20px) rotate(1.5deg); }
+    66% { transform: translate(-10px, 15px) rotate(-1deg); }
+    100% { transform: translate(20px, 10px) rotate(0.5deg); }
+}
+
+/* --- Ondas Desincronizadas (SVG) --- */
+.waves-wrapper {
+    position: fixed;
+    top: 50%; left: 0; width: 100%; height: 400px;
+    transform: translateY(-50%);
+    z-index: 1;
+    pointer-events: none;
+}
+.wave-svg { width: 100%; height: 100%; }
+.path { fill: none; stroke-width: 2; opacity: var(--wave-opacity); }
+.path-1 { stroke: #c084fc; animation: moveWave 12s linear infinite; }
+.path-2 { stroke: #38bdf8; animation: moveWave 18s linear infinite reverse; }
+.path-3 { stroke: #e879f9; animation: moveWave 15s linear infinite; animation-delay: -2s; }
+.path-4 { stroke: #818cf8; animation: moveWave 22s linear infinite reverse; animation-delay: -5s; }
+
+@keyframes moveWave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-1000px); }
+}
+
+/* --- Navegação --- */
+.navbar {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    margin: 20px 40px;
+    background: var(--nav-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+}
+.logo { font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+.nav-right { display: flex; gap: 15px; align-items: center; }
+.nav-btn {
+    background: rgba(125, 125, 125, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+.theme-toggle { width: 40px; height: 40px; border-radius: 50%; padding: 0; justify-content: center; font-size: 1.2rem; }
+.token-low { background-color: #e74c3c !important; color: white !important; }
+
+/* --- Main UI (Home) --- */
+.content{
+    position: relative;
+    z-index: 10;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.content:has(> .input-card)  { flex-direction: column; }
+
+.hero-title {
+    font-size: 5.5rem; font-weight: 900; margin: 0;
+    background: linear-gradient(180deg, #c084fc 0%, #9333ea 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -3px;
+}
+.hero-sub { color: var(--text-sub); font-size: 1.1rem; max-width: 500px; margin: 15px auto 40px auto; line-height: 1.5; }
+
+.input-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(20px);
+    padding: 30px;
+    border-radius: 28px;
+    width: 100%; max-width: 720px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+}
+.url-input {
+    width: 100%; height: 60px; border-radius: 18px; border: none;
+    padding: 0 25px; font-size: 1.1rem;
+    background: var(--input-bg); color: var(--input-text);
+    margin-bottom: 20px; outline: none;
+}
+.btn-row { display: flex; gap: 20px; }
+.main-btn {
+    flex: 1; height: 58px; border-radius: 18px; border: none;
+    font-weight: bold; font-size: 1rem; cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+}
+.main-btn:active { transform: scale(0.97); }
+.btn-load { background: #facc15; color: #000; }
+.btn-practice { background: linear-gradient(90deg, #818cf8, #c084fc); color: #fff; }
+
+.footer-tag {
+    margin-top: 40px; font-size: 0.9rem; color: #fff;
+    background: rgba(0, 0, 0, 0.4); padding: 6px 16px;
+    border-radius: 8px; backdrop-filter: blur(5px);
+}
+
+/* ====================================================
+   ESTILOS DO PLAYER E PAINEL (Página 2)
+   ==================================================== */
+main {
+    display: flex;
+    margin: auto;
+    width: 100%;
+    max-width: 1400px;
+    gap: 30px;
+}
+
+/* --- Coluna Esquerda: Vídeo --- */
+#painelPrincipal {
+    position: relative;
+    width: 100%;
+    flex: 1.2;
+}
+
+#protecaoPlayer {
+    display: flex;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--overlay-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 5;
+    border-radius: 10px;
+}
+
+/* Botão de Iniciar Estudos (Destaque) */
+#protecaoButton {
+    margin: auto;
+    padding: 15px 35px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff !important; /* Força o texto a ficar branco */
+    background: linear-gradient(90deg, #818cf8, #c084fc) ;/*!important; Gradiente moderno*/
+    border: none !important;
+    border-radius: 14px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(147, 51, 234, 0.3); /* Sombra colorida */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#protecaoButton:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(147, 51, 234, 0.4);
+}
+#protecaoButton:active { transform: scale(0.95); }
+
+#video, #player {
+    display: flex; width: 100%;
+    aspect-ratio: 16 / 9;
+}
+
+#player iframe {
+    width: 100%; height: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+#botoes {
+    margin-top: 15px; display: flex; justify-content: center; gap: 15px;
+}
+
+#botoes button, #delete {
+    border-radius: 8px; font-size: 1rem; padding: 12px 20px;
+    cursor: pointer; border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    transition: background 0.3s ease; font-weight: bold;
+}
+#botoes button:hover, #delete:hover, #ocultar:hover, .nav-right button:hover {
+    background: var(--button-hover);
+}
+
+#anterior, #proximo, #salvar, #delete {
+    background: var(--bg-button);
+    color: var(--text-button); 
+}    
+
+/* Botões página revisão */
+#facil    { background: green; }
+#medio    { background: yellow; color: black; }
+#dificil  { background: red; }
+#delete { align-self: flex-end; margin-bottom: 2vh; }
+
+/* --- Coluna Direita: Legenda, Onda e Microfone --- */
+#painelLateral {
+    width: 100%; flex: 1;
+    display: flex; flex-direction: column;
+    gap: 20px; padding-top: 10px;
+}
+
+#legendaPai {
+    display: flex; width: 100%;
+    align-items: center; gap: 15px;
+}
+
+#ocultar {
+    margin: 0; border-radius: 50%; width: 50px; height: 50px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-button); border: 1px solid var(--border-color);
+    cursor: pointer; transition: 0.2s;
+}
+
+/*imagem do delete igual imagem do ocultar*/
+#ocultar img, #delete img { width: 28px; filter: invert(var(--icon-invert, 0)); }
+:root[data-theme="dark"] { --icon-invert: 0; } /* Deixa o olho branco no tema escuro */
+:root[data-theme="light"] { --icon-invert: 1; }
+
+#legenda {
+    margin: 0; font-size: 1.1rem; font-weight: bold;
+    background: var(--card-bg); color: var(--text-main);
+    padding: 15px 20px; width: 100%; text-align: left;
+    border-radius: 10px; border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    line-height: 1.6;
+}
+
+#panel {
+    display: flex; flex-direction: column; width: 100%; gap: 15px;
+}
+
+/*  Waveform Original  */
+#waveformContainer, #waveMicContainer {
+    width: 100%;
+}
+
+#waveformContainer {
+    width: 100%; 
+    min-height: 140px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+#waveform {
+    width: 100%; 
+    height: 140px;
+    position: relative;
+    z-index: 2; /* Traz o canvas da onda para a frente */
+}
+
+#waveCursor {
+    position: absolute; 
+    top: 0; bottom: 0;
+    width: 2px;
+    background: #e74c3c; /*Cursor vermelho pra fiacr mais legal*/
+    left: 0%;
+    z-index: 5; 
+    pointer-events: none;
+    box-shadow: 0 0 5px rgba(231, 76, 60, 0.8);
+}
+
+#wave {
+    width: 100%; height: 140px;
+    background: var(--card-bg); border-radius: 12px;
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    display: block;
+}
+
+/* TIMER */
+#timerContainer {
+    width: 100%; display: flex; flex-direction: column; gap: 8px;
+}
+
+#timerTrack {
+    width: 100%; height: 14px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 999px; overflow: hidden;
+}
+
+#timerProgress {
+    width: 0%; height: 100%;
+    background: linear-gradient(90deg, #818cf8, #c084fc);
+    transition: width 0.05s linear;
+}
+
+#timerTexto {
+    font-weight: bold; color: var(--text-main); font-size: 14px; text-align: center;
+}
+
+/* Layout lado a lado para transcrição e microfone */
+.mic-area {
+    display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;
+}
+
+#transcript {
+    background: var(--card-bg); color: var(--text-main);
+    padding: 15px 20px; border-radius: 10px; flex-grow: 1; text-align: left;
+    font-size: 1rem; border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+#gravar {
+    margin: 0; border-radius: 50%; width: 60px; height: 60px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: #e74c3c; border: none;
+    cursor: pointer; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+    transition: transform 0.2s;
+}
+#gravar img { width: 24px; filter: brightness(0) invert(1); }
+#gravar:active { transform: scale(0.95); }
+#gravar.recording, .mic-btn.recording {
+    background: #c0392b; animation: recordingPulse 1s infinite;
+}
+
+@keyframes recordingPulse {
+    0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { box-shadow: 0 0 0 15px rgba(231, 76, 60, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+.hidden { display: none !important; }
+
+/* ====================================================
+   POPUP DE DICIONÁRIO E LEGENDAS
+   ==================================================== */
+.palavra-legenda {
+    cursor: pointer;
+    display: inline-block;
+    border-radius: 4px;
+    padding: 1px 2px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.palavra-legenda:hover {
+    background: rgba(129, 140, 248, 0.3); /* Destaque na cor do tema */
+}
+
+#popupPalavra {
+    position: absolute;
+    background: var(--popup-bg);
+    border: 1px solid var(--popup-border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    min-width: 200px;
+    max-width: 300px;
+    text-align: left;
+    animation: fadeInPopup 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    backdrop-filter: blur(15px);
+}
+
+@keyframes fadeInPopup {
+    from { opacity: 0; transform: translateY(-10px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.popup-header {
+    display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+    border-bottom: 2px solid #818cf8;
+    padding-bottom: 8px; margin-bottom: 10px;
+}
+
+.popup-palavra {
+    font-weight: bold; font-size: 19px; color: var(--popup-text);
+}
+
+.popup-fonetica {
+    font-size: 14px; color: var(--popup-muted);
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.popup-definicao {
+    font-size: 14px; color: var(--popup-text);
+    line-height: 1.5; margin-top: 8px;
+}
+
+.popup-exemplo {
+    font-size: 13px; color: var(--popup-muted);
+    font-style: italic; margin-top: 8px;
+    border-left: 3px solid #818cf8; padding-left: 8px;
+}
+
+.popup-audio-btn {
+    background: rgba(129, 140, 248, 0.1);
+    border: 1px solid #818cf8; border-radius: 30px;
+    color: #818cf8; padding: 6px 16px; font-size: 13px;
+    cursor: pointer; transition: all 0.2s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-weight: bold; margin-top: 12px; align-self: center;
+}
+
+.popup-audio-btn:hover { background: #818cf8; color: white; }
+.popup-loading { font-size: 13px; color: var(--text-sub); text-align: center; padding: 8px; }
+.popup-erro { font-size: 13px; color: #e74c3c; text-align: center; padding: 8px; }
+
+/* ====================================================
+   MODAL DE ERRO E CARREGAMENTO
+   ==================================================== */
+#carregamento {
+    display: none; flex-direction: column; background: rgba(0, 0, 0, 0.7);
+    position: fixed; width: 100%; height: 100%; align-content: center;
+    color: white; z-index: 5000; top: 0; left: 0; padding-top: 20vh;
+    backdrop-filter: blur(5px);
+}
+#erro, #erroMic { color: #e74c3c; font-weight: bold; }
+
+.w3-modal {
+    z-index: 10000; display: none; padding-top: 15vh;
+    position: fixed; left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
+}
+
+.w3-modal-content {
+    margin: auto; background: var(--card-bg); border: 1px solid var(--border-color);
+    color: var(--text-main); padding: 40px 30px; width: 90%; max-width: 450px;
+    border-radius: 24px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    backdrop-filter: blur(20px); animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#botaoErro {
+    background: #e74c3c; color: white; border: none; padding: 14px 40px;
+    border-radius: 14px; font-size: 1rem; font-weight: bold; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+#botaoErro:hover { background: #c0392b; transform: scale(1.05); }
+
+/* [ MEMBRO 3 - BLOCO 4 ]: */
+
+/* =====================================================================================
+   ESTILO PARA O MODAL SOBRE LEGENDA E TÍTULO DO VÍDEO (CÓPIA IDÊNTICA DO MODAL DE ERRO)
+   ===================================================================================== */
+
+.modal-legenda-titulo {
+    z-index: 1000;
+    display: none; 
+    padding-top: 15vh;
+    position: fixed;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+}
+
+/* Copiado exatamente do .w3-modal-content */
+.modal-legenda-titulo-content {
+    margin: auto;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 40px 30px;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    backdrop-filter: blur(20px);
+    animation: modalFadeIn 0.3s ease;
+}
+
+/* O texto onde os logs serão injetados */
+#textologs {
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    color: var(--text-main); 
+}
+
+/* O botão "Continuar" */
+#botaoContinuar {
+    background: #2ecc71; 
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+}
+
+#botaoContinuar:hover {
+    background: #27ae60; 
+    transform: scale(1.05);
+}
+
+/* [ MEMBRO 1 && MEMBRO 3 - BLOCO 4, PARTE 1/5 ]: Esse estilo a seguir pode vir a ser mudado. */
+
+/* ====================================================================================
+    ESTILO PARA O NOVO MODAL DE ESCOLHA DE DECKS QUE APARECE AO CLICAR EM "SALVAR CARD" 
+   ==================================================================================== */
+
+/* Container de fundo do modal (Overlay) */
+
+.modal-decks {
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Caixa da Janela Principal */
+
+.modal-conteudo {
+    background-color: #2c2c2c;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 480px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.modal-titulo {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Botão "X" que fica no canto superior direito do modal, para fechá-lo */
+
+.btn-X {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.btn-X:hover { color: #fff; }
+
+/* Seção de Filtro */
+
+.filtro-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+.modal-input-text {
+    flex: 1;
+    background-color: #1a1a1a;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 3px;
+    outline: none;
+}
+
+.modal-input-text:focus { border-color: #5294e2; }
+
+/* Caixa onde vai ficar a lista de Decks */
+
+.modal-list-container {
+    background-color: #1e1e1e;
+    border: 1px solid #444;
+    height: 180px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+    border-radius: 2px;
+}
+
+.modal-deck-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left; /* Força a lista a alinhar o texto à esquerda */
+}
+
+.modal-deck-item {
+    padding: 6px 10px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.modal-deck-item:hover {
+    background-color: #2a2a2a;
+}
+
+/* Estado do Deck quando ele for selecionado */
+
+.modal-deck-item.selected {
+    background-color: #4a6984 !important;
+    color: #fff;
+}
+
+/* Rodapé de Botões */
+
+.modal-colecao-botoes {
+    display: flex;
+    justify-content: space-between; /* Distribui o espaço igualmente entre os botões */
+    gap: 8px;                       
+    margin-top: 4px;
+}
+
+/* Botões em si (os que ficam ativados assim que o modal abre) */
+.modal-decks-btn {
+    flex: 1;                        
+    background-color: #3a3a3a;
+    color: #e0e0e0;
+    border: 1px solid #555;
+    padding: 6px 0;                 
+    font-size: 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Botões em si (os que ficam desativados assim que o modal abre, no caso o "Salvar" e "Deletar Deck", pois eles esperam o usuário selecionar um Deck para serem habilitados) */
+.modal-decks-btn:disabled {
+    background-color: #1a1a1a;
+    color: #555;
+    cursor: not-allowed;
+    border-color: #333;
+}
+
+.modal-decks-btn:hover {
+    background-color: #4a4a4a;
+    border-color: #666;
+}
+
+/* Destaque para o botão "Salvar" */
+.modal-decks-btn.btn-primary {
+    border: 1px solid #4a6984;
+    box-shadow: inset 0 0 2px rgba(255,255,255,0.2);
+}
+
+/* Remove o hover e o cursor de clique para itens que são apenas texto informativo */
+.modal-deck-item.apenas-texto:hover {
+    background-color: transparent !important;
+}
+
+/* [ MEMBRO 1 && MEMBRO 3 - BLOCO 4, PARTE 2/5 ]: Esse estilo a seguir pode vir a ser mudado. */
+
+/* ===================================================================================================================
+    ESTILO PARA O NOVO SUBMODAL DE CRIAÇÃO DE DECKS QUE APARECE AO CLICAR EM "CRIAR DECKS", DENTRO DO MODAL DE ESCOLHA 
+   =================================================================================================================== */
+
+/* Container de fundo (Overlay) exclusivo do Submodal */
+.submodal-decks {
+    position: fixed;
+    z-index: 30000; 
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(2px);
+    
+    /* Centralização e controle de exibição */
+    display: none; /* Controlado como 'flex' via JS */
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Caixa da Janela Principal do Submodal */
+.submodal-decks .submodal-conteudo {
+    background-color: #2c2c2c;
+    color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 400px; /* Um pouco mais estreito que o modal principal */
+    max-width: 90%;
+    border: 1px solid #444;
+    border-radius: 6px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.7);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Cabeçalho do Submodal */
+.submodal-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #3a3a3a;
+    padding-bottom: 8px;
+}
+
+/* Título e Ícone */
+.submodal-titulo {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f0f0f0;
+    display: flex;
+    align-items: center;
+}
+
+/* Corpo do Submodal (Área do Input) */
+.submodal-corpo {
+    padding: 6px 0;
+}
+
+.submodal-texto-orientacao {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: #f0f0f0;
+}
+
+/* Força o input de texto a ocupar toda a largura interna disponível */
+.submodal-input-largura {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Rodapé de Botões (Alinhado à direita para padrão de diálogo do Anki) */
+.submodal-colecao-botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+/* Customização de largura fixa para os botões OK e Cancelar do submodal */
+.submodal-decks .submodal-btn-largura {
+    flex: none; /* Desativa o 'flex: 1' herdado para não esticar os botões */
+    min-width: 80px;
+    padding: 6px 12px;
+}
+
+/* [ MEMBRO 1 && MEMBRO 3 - BLOCO 4, PARTE 3/5 ]: Esse estilo a seguir pode vir a ser mudado. */
+
+/* ==========================================================
+    ESTILO PARA O NOVO DASHBOARD DE DECKS (nova pagina3.html) 
+   ========================================================== */
+
+/* Usei !important em muitas das regras para evitar conflitos de herança com outras regras desse arquivo */
+
+/* O container principal como um todo */
+.dashboard-container {
+    width: 100%;
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* A caixa cinza onde vai aparecer a lista de Decks */
+.card-board {
+    background: rgba(30, 34, 42, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 20px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+/* Estrututuras geral do Dashboard (linhas de nomes de Decks e dos cabeçalhos "Deck", "Novos" e "Quantidade Total") */
+.dashboard-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+/* Estilo específico para os cabeçalhos */
+.dashboard-table th {
+    padding: 16px 12px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #94a3b8 !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+    background: transparent !important;
+    text-transform: none !important;
+}
+
+/* Distribuição de larguras para impedir o esmagamento  */
+.th-deck { width: 40% !important; text-align: left !important; }
+.th-novos { width: 20% !important; text-align: center !important; }
+.th-revisar { width: 20% !important; text-align: center !important; }
+.th-qtd-total { width: 20% !important; text-align: center !important; }
+
+/* Comportamento específico das linhas, que contem os nomes dos Decks */
+.dashboard-tr-deck {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    background: transparent !important;
+    transition: background 0.2s ease;
+    cursor: pointer;
+}
+
+/* Leve hover quando passar o mouse por cima da linha do nome de um Deck */
+.dashboard-tr-deck:hover {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Leve hover quando selecionar um Deck ao clicar */
+.dashboard-tr-deck.selected {
+    background: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* As células de texto */
+.td-deck-name {
+    padding: 16px 12px !important;
+    font-size: 15px !important;
+    color: #f8fafc !important;
+    text-align: left !important;
+}
+
+.td-novos, .td-revisar, .td-qtd-total {
+    padding: 16px 12px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+}
+
+/* Cores para os números */
+.text-blue   { color: #3b82f6 !important; }
+.text-green { color: #10b981 !important; }
+.text-yellow { color: #eab308 !important; }
+
+.td-action {
+    text-align: center !important;
+    padding: 12px 0 !important;
+}
+
+/* Forçando os botões Criar e Deletar a ficarem lado a lado nas extremidades */
+.dashboard-actions-footer {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 20px !important;
+    margin-top: 10px !important;
+}
+
+/* Estilo geral dos botões */
+.btn-action {
+    flex: 1 !important;
+    padding: 12px 0 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.5px !important;
+    background: transparent !important;
+    border: 2px solid #ef4444 !important;
+    color: #ef4444 !important;
+    border-radius: 8px !important;
+    cursor: pointer;
+    transition: all 0.2s ease !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Customização específica para o botão CRIAR DECK ficar verde */
+#btnCriarDeckRevisao {
+    border: 2px solid #10b981 !important; /* Borda Verde */
+    color: #10b981 !important;            /* Texto Verde */
+}
+
+/* Efeito Hover específico para o botão CRIAR DECK */
+#btnCriarDeckRevisao:hover {
+    background: #10b981 !important;       /* Fundo Verde no Hover */
+    color: #ffffff !important;            /* Texto Branco no Hover */
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important; /* Brilho Verde */
+}
+
+/* Customização específica para o botão RENOMEAR DECK ficar azul */
+#btnRenomearDeckRevisao {
+    border: 2px solid #3b82f6 !important; /* Borda Azul */
+    color: #3b82f6 !important;            /* Texto Azul */
+}
+
+/* Efeito Hover específico para o botão RENOMEAR DECK */
+#btnRenomearDeckRevisao:hover:not(:disabled) {
+    background: #3b82f6 !important;       /* Fundo Azul no Hover */
+    color: #ffffff !important;            /* Texto Branco no Hover */
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.3) !important; /* Brilho Azul */
+}
+
+/* Customização específica para o botão DELETAR DECK, quando ele estiver habilitado */
+.btn-action:hover:not(:disabled) {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Customização específica para o botão DELETAR DECK, quando ele estiver desabilitado */
+.btn-action:disabled {
+    border-color: #334155 !important;
+    color: #475569 !important;
+    cursor: not-allowed !important;
+    opacity: 0.4 !important;
+    background: transparent !important;
+}
+
+/* Animação */
+.animate-fade-in {
+    animation: dashboardFadeIn 0.25s ease-out forwards;
+}
+
+@keyframes dashboardFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* ====================================================
+   RESPONSIVIDADE E MEDIA QUERIES
+   ==================================================== */
+@media (max-width: 1024px) {
+    .hero-title { font-size: 4rem; letter-spacing: -2px; }
+    .hero-sub { font-size: 1rem; margin-bottom: 30px; }
+    .t5, .t6, .t7, .t8 { display: none; }
+    main { flex-direction: column; align-items: center; }
+    #painelPrincipal, #painelLateral { max-width: 800px; }
+}
+
+@media (max-width: 768px) {
+    .thumbnails-bg { display: none; }
+    .navbar { margin: 15px; padding: 10px 15px; border-radius: 20px; }
+    .logo { font-size: 1rem; }
+    .nav-right { gap: 8px; }
+    .nav-btn { padding: 6px 12px; font-size: 0.8rem; }
+    .btn-text-mobile { display: none; }
+
+    .hero-title { font-size: 2.8rem; }
+    .hero-sub { font-size: 0.95rem; padding: 0 10px; margin-bottom: 25px; }
+    .input-card { padding: 20px; border-radius: 20px; margin: 0 10px; width: auto; }
+    .url-input { height: 50px; font-size: 1rem; border-radius: 14px; }
+    .btn-row { flex-direction: column; gap: 12px; }
+    .main-btn { height: 50px; font-size: 0.95rem; border-radius: 14px; }
+    .waves-wrapper { height: 250px; }
+}

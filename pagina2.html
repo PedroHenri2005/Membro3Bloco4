@@ -1,0 +1,123 @@
+<!-- [ MEMBRO 3 - BLOCO 4 ]: Novo modal a fim de avisar o usuário sobre o tipo de legenda e o título do vídeo. -->
+<div id="modalLegendaTitulo" class="modal-legenda-titulo">
+    <div class="modal-legenda-titulo-content">
+        <p id="textologs"></p>
+        <button id="botaoContinuar">Continuar</button>
+    </div>
+</div>
+
+<!-- [ MEMBRO 3 - BLOCO 4 ]: Novo modal que aparece ao clicar no botão "Salvar Card". Servirá para o usuário escolher em qual Deck deseja salvar o Card, e também será possível criar e deletar Decks por ele. -->
+<div id="modalDeck" class="modal-decks" style="display: none;">
+    <div class="modal-conteudo">
+        
+        <div class="modal-cabecalho">
+            <span class="modal-titulo">Escolher Deck</span>
+            <button type="button" class="btn-X" id="btnCancelar">&times;</button>
+        </div>
+
+        <div class="filtro-container">
+            <label for="filtroInput">Filtro:</label>
+            <input type="text" id="filtroInput" class="modal-input-text" placeholder="Digite para filtrar...">
+        </div>
+
+        <div class="modal-list-container">
+            <ul id="listaDecks" class="modal-deck-list"></ul>
+        </div>
+
+        <div class="modal-colecao-botoes">
+            <button type="button" id="btnSalvar" class="modal-decks-btn btn-primary" disabled>Salvar Card</button>
+            <button type="button" id="btnCriarDeckModal" class="modal-decks-btn">Criar Deck</button>
+            <button type="button" id="btnDeletarDeckModal" class="modal-decks-btn" disabled>Deletar Deck</button>
+            <button type="button" id="btnCancelarRodape" class="modal-decks-btn">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- [ MEMBRO 3 - BLOCO 4 ]: Novo submodal que aparece ao clicar no botão "Criar Deck", dentro do modal de escolha que está descrito logo acima nesse código. -->
+ <div id="subModalCriarDeck" class="submodal-decks">
+    <div class="submodal-conteudo">
+        
+        <div class="submodal-cabecalho">
+            <span class="submodal-titulo">Criar novo Deck</span>
+            <button type="button" class="btn-X" id="btnCancelarSubModalX">&times;</button>
+        </div>
+
+        <div class="submodal-corpo">
+            <p class="submodal-texto-orientacao">Novo nome do Deck:</p>
+            <input type="text" id="novoNomeDeckInput" class="modal-input-text submodal-input-largura" autocomplete="off">
+        </div>
+
+        <div class="submodal-colecao-botoes">
+            <button type="button" id="btnConfirmarCriarDeck" class="modal-decks-btn btn-primary submodal-btn-largura">OK</button>
+            <button type="button" id="btnCancelarSubModal" class="modal-decks-btn submodal-btn-largura">Cancelar</button>
+        </div>
+        
+    </div>
+</div>
+
+<div id="painelPrincipal">
+    <div id="protecaoPlayer">
+        <button id="protecaoButton">Iniciar Estudos</button>
+    </div>
+    
+    <div id="playerContainer">
+        <div id="player"></div> 
+    </div>
+    
+    <div id="botoes">
+        <button id="anterior">Frase anterior</button>
+        <button id="salvar">Salvar Card</button>
+        <button id="proximo">Próxima frase</button>
+    </div>
+</div>
+
+<div id="painelLateral">
+    <div id="legendaPai">
+        <button id="ocultar">
+            <img id="olho" src="/static/img/olho.svg" alt="Ocultar">
+        </button>
+        <div id="legenda">
+            Legendas
+        </div>
+    </div>
+    
+    <div id="panel">
+        
+        <div id="waveformContainer">
+            <div id="waveform">
+                <div id="waveCursor"></div>
+            </div>
+        </div>
+
+        <div id="waveMicContainer">
+            <canvas id="wave" width="700" height="140"></canvas>
+        </div>
+
+        <div id="timerContainer">
+            <div id="timerTrack">
+                <div id="timerProgress"></div>
+            </div>
+            <div id="timerTexto">
+                0.0s / 0.0s
+            </div>
+        </div>
+        
+        <div class="mic-area">
+            <div id="transcript">Fale algo...</div>
+            <button id="gravar">
+                <img src="/static/img/mic.svg" alt="Gravar">
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="carregamento">
+    <div class="carregamento-box">
+        <p id="carregamentoTexto">
+            Extraindo legendas do vídeo... Isso pode levar alguns segundos.
+        </p>
+        <p>
+            <i class="fa fa-spinner w3-spin" style="font-size:64px"></i>
+        </p>
+    </div>
+</div>
