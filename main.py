@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Form, HTTPException , Depends # [ MEMBRO 3 - BLOCO 4 ]: Mais uma classe Depends para usar na rota de atualizar tempo de revisão.
+from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -54,11 +54,6 @@ async def initFunction(app: FastAPI):
     yield
     # [ MEMBRO 3 - BLOCO 4 ]: Executado no momento em que o servidor desliga:
     print("Servidor finalizado adequadamente.")
-
-# [ MEMBRO 3 - BLOCO 4 ]: Função geradora de sessões do banco de dados para as rotas
-def get_session():
-    with Session(engine) as session:
-        yield session
 
 # Começamos definindo o limitador:
 # Ele servirá para restringir a quantidade de requisições que o usuário poderá fazer ao Youtube
@@ -134,6 +129,7 @@ async def revisar(request:Request):
         )
 
 # [ MEMBRO 3  - BLOCO 4 ]: ROTA NOVA DE NAVEGAÇÂO PARA ABRIR A pagina4.html (tela de revisão dos Decks de fato):
+
 @app.get("/estudo_revisao", response_class=HTMLResponse)
 async def estudo_revisao(request: Request):
     # Se o usuário tentar acessar direto pela URL sem o HTMX (F5):
@@ -458,10 +454,11 @@ async def obter_audio(url: str, inicio: str, fim: str):
 
 @app.get("/api/listar_decks")
 def listar_decks():
+    # Começo obtendo o momento de agora:
     agora = datetime.now(ZoneInfo("America/Sao_Paulo")).replace(tzinfo=None)
 
     with Session(engine) as session:
-        # Começo buscando todos os Decks cadastrados no BD:
+        # Depois, basta buscar todos os Decks cadastrados no BD:
         decks = session.exec(select(Deck)).all() 
         resultado = []
 
@@ -473,18 +470,23 @@ def listar_decks():
 
             qtd_total = len(total_cards)
 
-            # Lógica para contar Cards "Novos": aqueles que ainda têm revisao igual a 0 (ou sem histórico)
+            # Também será útil para o Dashboard da pagina3.hmtl contar Cards "Novos": aqueles que ainda têm quantidade de revisões feitas igual a 0.
             qtd_novos = len([
                 c for c in total_cards 
                 if getattr(c, 'revisao', 0) == 0
             ])
 
+            # Por fim, a última informação que será boa para o Dashboard é contar os Cards que precisam ser revisados.
             qtd_revisar = 0
             for c in total_cards:
+                # Se o Card tiver uma quantidade de revisões maior que 0, isso significa que ele não é novo:
                 if getattr(c, 'revisao', 0) > 0:
+                    # Então, obtemos a data da próxima revisão desse Card:
                     dt_revisao = getattr(c, 'data_proxima_revisao', None)
                     if dt_revisao:
+                        # Se a data da próxima revisão desse Card já tiver passado (ou seja, se o momento for <= agora), então esse Card precisa ser revisado novamente.
                         if dt_revisao.replace(tzinfo=None) <= agora:
+                            # Por isso, a quantidade de revisões dele vai ser incrementada (isso vai ser mostrado no Dashboard de Decks).
                             qtd_revisar += 1
 
             resultado.append({
@@ -568,7 +570,7 @@ def deletar_deck(deck_id: int = Form(...)):
             )
         
         try:
-            # Depois disso, tento remover o Deck do BD:
+            # Depois disso, tento remover o Deck do BD (lembrando que, segundo o models.py, quando um Deck é deletado, todos os seus Cards são deletados junto):
             session.delete(deck)
             session.commit()
             
@@ -692,7 +694,7 @@ def renomear_deck(deck_id: int = Form(...), nome: str = Form(...)):
             )
             
         except Exception as e:
-            # Caso ocorra qualquer erro na transação, desfazemos as alterações na sessão:
+            # Caso ocorra qualquer erro na transação de nomes, desfazemos as alterações na sessão:
             session.rollback()
             return JSONResponse(
                 status_code=500,
@@ -703,22 +705,22 @@ def renomear_deck(deck_id: int = Form(...), nome: str = Form(...)):
 @app.get("/api/revisar_deck/{deck_id}")
 def revisar_deck(deck_id: int):
     with Session(engine) as session:
-        # 1. Começo obtendo o horário atual:
+        # Começo obtendo o horário atual:
         agora = datetime.now(ZoneInfo("America/Sao_Paulo")).replace(tzinfo=None)
         
-        # 2. Busco os cards do deck aplicando os filtros necessários:
+        # Depois, busco os cards do deck aplicando os filtros necessários:
         cards = session.exec(
             select(Card)
             .where(Card.deck_id == deck_id)
             .where(
                 or_(
                     Card.revisao == 0, # Cards "Novos" que acabaram de serem salvos no Deck.
-                    Card.data_proxima_revisao <= agora # Cards mais velhos da categoria "revisar".
+                    Card.data_proxima_revisao <= agora # Cards mais velhos cuja data de revisão já expirou, entram na categoria "Revisar".
                 )
             )
         ).all()
         
-        # 3. Montamos o retorno JSON normalmente
+        # Então, monto o retorno JSON:
         resultado = []
         for card in cards:
             resultado.append({
@@ -742,7 +744,19 @@ def atualizar_revisao(card_id: int, dificuldade: str):
         
         agora = datetime.now(ZoneInfo("America/Sao_Paulo")).replace(tzinfo=None)
         
-        # Depois, aplico a lógica dos multiplicadores de dias:
+        # Depois, aplico a lógica dos multiplicadores que serão aplicados pelo usuário ao clicar em "Fácil", "Médio" e "Difícil":
+        # Aqui, coloquei multiplicadores pequenos, apenas para testar se os Cards a serem revisados apareciam corretamente no Dashboard da pagina3.html. São eles:
+
+        # MULTIPLICADORES:
+
+        # "Fácil": 10 segundos após a revisão, a data de revisão desse Card já expira, e ele deve ser revisado de novo.
+        # "Médio": 30 segundos.
+        # "Difícil": 60 segundos.
+
+        # Testando ao alternar entre a pagina3.html e a pagina4.html, assim que um Card "Novo" é revisado na pagina4.html, basta voltar para a pagina3.html e ver que a categoria "Novo" será decrementada, por conta desse Card.
+        # Depois de esperar pelo tempo estipulado pela dificuldade que esse Card foi avaliado e recarregar a página, já é possível ver que a categoria "Revisar" foi incrementada por conta desse Card, e já será possível revisar ele de novo.
+        # (OBS): Se quiser testar com outras datas de revisão (para minutos ou até dias), basta mudar o argumento das funções timedelta abaixo:
+
         if dificuldade == "facil":
             card.data_proxima_revisao = agora + timedelta(seconds=10)
         elif dificuldade == "medio":
@@ -752,7 +766,7 @@ def atualizar_revisao(card_id: int, dificuldade: str):
         else:
             raise HTTPException(status_code=400, detail="Dificuldade inválida")
         
-        # Incremento a quantidade de revisões feitas:
+        # Depois da revisão do Card, é necessário incrementar a quantidade de revisões feitas nele:
         card.revisao += 1
         
         session.add(card)
@@ -766,7 +780,7 @@ def atualizar_revisao(card_id: int, dificuldade: str):
             "numero_revisoes": card.revisao
         }
 
-# ROTA 8 - Rota para atualizar a data_proxima_revisao de um certo Card:
+# ROTA 8 - Rota para deletar o Card de um certo Deck (será usado somente no ícone de lixeira na pagina4.html, onde o usuário revisa os Cards de um Deck):
 @app.delete("/api/deletar_card/{card_id}")
 def deletar_card_revisao(card_id: int):
     with Session(engine) as session:
