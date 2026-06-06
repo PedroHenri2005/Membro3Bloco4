@@ -78,7 +78,7 @@
                 // [ MEMBRO 3 - BLOCO 4 ]: Nova lógica para detectar se o usuário está na página de revisão (pagina4.html) ou não:
                 if (window.location.pathname.includes("/estudo_revisao")) {
                     if (typeof inicializarCicloRevisao === "function") {
-                        inicializarCicloRevisao();
+                        inicializarCicloRevisao(); // A página 4 tem uma própria lógica independente para conseguir renderizar os trechos de vídeo para revisão.
                     }
                     return; // Interrompe aqui, já que a página 4 não usa o "iniciarSessao" clássico de criar cards.
                 }
