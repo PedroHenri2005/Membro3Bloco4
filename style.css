@@ -888,7 +888,7 @@ main {
     ESTILO PARA O NOVO DASHBOARD DE DECKS (nova pagina3.html) 
    ========================================================== */
 
-/* Usei !important em muitas das regras para evitar conflitos de herança com outras regras desse arquivo */
+/* Usei !important em todas as regras para evitar conflitos de herança com outras regras desse arquivo, isso pode vir a ser alterado depois */
 
 /* O container principal como um todo */
 .dashboard-container {
