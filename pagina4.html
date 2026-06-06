@@ -2,16 +2,13 @@
     <div id="protecaoPlayer">
         <button id="protecaoButton">Iniciar Estudos</button>
     </div>
-
-    <div id="playerContainer">
-        <div id="player"></div> 
-    </div>
-        
-    <div id="botoes" style="margin-top: 15px;">
+    <div id="player"></div> 
+    <div id="botoes">
         <button id="dificil">DIFÍCIL</button>
         <button id="medio">MÉDIO</button>
         <button id="facil">FÁCIL</button>
-        </div>
+    </div>
+
 </div>
 
 <div id="painelLateral">
@@ -40,129 +37,154 @@
     </button>
 </div>
 
+<!-- [ MEMBRO 3 - BLOCO 4 ]: Abaixo, vem toda a lógica da pagina4.html, para carregar os trechos do vídeo, avaliar dificuldade dos Cards, e fazer a lixeira funcionar adequadamente. --> 
 <script>
 (() => {
-
+    // Vamos começar com a variável que controlará o loop do vídeo de cada um dos Cards:
+    // Caso seja necessário parar o loop para trocar de Card, por exemplo, o ID nessa variável será usado para desligar o loop:
     let loopRAFRevisao = null;
 
-    // Função crucial para zerar a memória global e não travar o próximo Deck
+    // Função para zerar a memória do navegador: Serve para evitar o travamento do próximo Deck, após já ter estudado um anterior.
+    // Também evita travamentos ao progredir os Cards de um Deck. Basicamente, faz uma limpeza geral sempre que for necessário antes de uma revisão, para evitar conflitos de vídeos.
     function resetarEstadoGlobalRevisao() {
         console.log("Limpando cache e estados residuais de revisão...");
-        
-        if (loopRAFRevisao) {
-            cancelAnimationFrame(loopRAFRevisao);
-            loopRAFRevisao = null;
+
+        // Depois desse bloco if, teremos a certeza de que não há loops rodando em background, ao iniciar uma revisão:
+
+        if (loopRAFRevisao) { // Começamos verificando se já existe um loop rodando em background, no momento da limpeza.
+            cancelAnimationFrame(loopRAFRevisao); // Se sim, esse loop é indesejável, e é necessário parar ele.
+            loopRAFRevisao = null; // Depois de parar o loop, atualizamos a variável para dizer que agora, não há mais loops rodando em background.
         }
         
-        if (window.player) {
+        // Depois de limpar o loop, também precisamos garantir que nenhum vídeo esteja tocando no background antes da revisão. Verifiquemos:
+        if (window.player) { 
             try {
                 if (typeof window.player.destroy === 'function') {
-                    window.player.destroy();
+                    window.player.destroy(); // Se sim, tentamos remover esse vídeo.
                 }
             } catch(e) {
-                console.warn("Erro ao destruir player residual:", e);
+                console.warn("Erro ao destruir player residual:", e); // Se houver erros na remoção, retorno isso no console.
             }
-            window.player = null;
+            window.player = null; // Termino avisando ao sistema que agora, temos certeza que nenhum vídeo está tocando.
         }
         
-        window.emModoRevisao = false;
+        window.emModoRevisao = false; // Aviso ao sistema que por enquanto, o usuário ainda não vai revisar nada.
+
+        // Finalizo a limpeza resetando todas as variáveis globais que vão ser importantes, assim que uma revisão começar:
         window.cardsDoDeckAtual = undefined;
         window.indiceCardRevisao = undefined;
         window.startTime = undefined;
         window.endTime = undefined;
     }
+    
+    // Depois da limpeza, agora sim é seguro inicializar a página, e consequentemente a revisão do Deck que o usuário clicou no Dashboard de Decks da pagina3.html.
 
-    // 1. Captura os dados do Deck direto da URL atual
+    // Inicialmente, é necessário obter o ID do Deck que o usuário clicou, e portanto quer revisar:
+
+    // Para isso, vou extrair os parâmetros da URL do navegador, que vai se parecer com isso: http://localhost:8000/revisao?deck_id=1
     const parametros = new URLSearchParams(window.location.search);
+    // Note que a URL já guarda em seu parâmetro a informação do ID do Deck (no exemplo que dei, deck_id=1). Logo, basta extraí-lo:
     const deckId = parametros.get("deck_id");
 
+    // Se por algum motivo essa extração não tiver sucesso, eu retorno um erro para o console:
     if (!deckId) {
         console.error("Abortado: ID do deck não encontrado na URL.");
         return;
     }
 
-    // Garante que qualquer lixo de outra sessão de estudos seja limpo antes de iniciar esta
+    // Depois de descobrir o ID do Deck, rodo a função de limpeza que descrevi anteriormente, para garantir que o sistema esteja limpo logo antes da revisão:
     resetarEstadoGlobalRevisao();
 
-    // 2. Busca os cards do backend e monta a fila local de execução
+    // Agora, com o ID do Deck em mãos, é possível usar a ROTA 6 descrita no main.py para procurar por todos os Cards "Novos" ou "Revisar" do Deck específico:
     fetch(`/api/revisar_deck/${deckId}`)
         .then(res => {
-            if (!res.ok) throw new Error("Erro na API de cartões");
-            return res.json();
+            if (!res.ok) throw new Error("Erro na API de cartões"); // Se a ROTA 6 retornar um erro, aviso isso por aqui.
+            return res.json(); // Se a ROTA 6 tiver sucesso, eu transformo o JSON que ela retorna em um array de objetos JS, para poder manipular ele.
         })
-        .then(cards => {
+        .then(cards => { // Depois disso, a variável cards já é o array de Cards "Novos" e "Revisar" daquele Deck, que devem ser revisados.
+            // Se não tiver Card nenhum para revisar, ou se de fato não houver nehum Card nesse Deck, retorno um aviso aproveitando o espaço da legenda para isso:
             if (!cards || cards.length === 0) {
                 const txtLegenda = document.getElementById("legenda");
-                if (txtLegenda) txtLegenda.textContent = "Nenhum card neste deck.";
+                if (txtLegenda) txtLegenda.textContent = "A data de revisão dos Cards desse Deck ainda não chegou, ou esse Deck não possui Cards.";
                 return;
             }
 
+            // Se o array de objetos não estiver vazio, guardo os Cards do Deck que precisamos revisar:
             window.cardsDoDeckAtual = cards;
+            // Também preparo um ponteiro para indicar que a revisão começará pelo primeiro Card do Deck, e assim por diante:
             window.indiceCardRevisao = 0;
+            // Agora sim, já é possível avisar ao sistema que a revisão começou.
             window.emModoRevisao = true;
 
-            // Dispara o ciclo de verificação para garantir que a API do YouTube está pronta
+            // Depois, disparo o ciclo de verificação para garantir que a API do YouTube está pronta para rodar. Vou descrever melhor essa função nas próximas linhas.
             garantirAPIENavegar();
         })
-        .catch(err => console.error("Falha ao processar fila de revisão:", err));
+        .catch(err => console.error("Falha ao processar fila de revisão:", err)); // Se qualquer outro erro não descrito aqui acontecer, retorno isso pro console.
 
+    // Essa função basicamente fica esperando a API do Youtube ficar pronta na memória, para possibilitar o carregamento do vídeo.
     function garantirAPIENavegar() {
         if (window.YT && window.YT.Player) {
-            renderizarCardAtualRevisao();
+            renderizarCardAtualRevisao(); // Se a API estiver pronta logo depois do fetch, já podemos partir para a renderização do Card atual na revisão.
         } else {
             const interval = setInterval(() => {
                 if (window.YT && window.YT.Player) {
                     clearInterval(interval);
                     renderizarCardAtualRevisao();
                 }
-            }, 100);
-            setTimeout(() => clearInterval(interval), 5000);
+            }, 100); // Se a API não estiver pronta ainda, crio um temporizador de 100 ms, e a cada intervalo de tempo desse, continuo verificando se API está pronta, até ela estar.
+
+            setTimeout(() => clearInterval(interval), 5000); // Se a API demorar demais (5 segundos) para ficar pronta, eu paro de disparar requisições para a API.
         }
     }
 
-    // 3. Lógica de Loop Exclusiva e de Alta Precisão para o Vídeo (Frame-by-Frame)
+    // Aqui, vem a função que gerencia o loop de cada um dos Cards em si:
     function gerenciarLoopDoVideo() {
+        // Começo fazendo uma verificação parecida com a função de limpeza anterior, apenas para evitar que dois loops não rodem ao mesmo tempo:
         if (loopRAFRevisao) {
             cancelAnimationFrame(loopRAFRevisao);
         }
 
-        function verificarTempo() {
+
+        function verificarTempo() { // Aqui, tem uma função que vai rodar frame a frame, para manter o rastreamento do tempo do vídeo atual.
+            // Para ela rodar, o usuário precisa estar em modo de revisão, o player não pode ter sido destruído, e deve ter disponível a função de extrair o tempo atual.
             if (!window.emModoRevisao || !window.player || typeof window.player.getCurrentTime !== "function") {
                 return;
             }
 
+            // Com todas as condições satisfeitas agora: 
             try {
-                const currentTime = window.player.getCurrentTime();
+                const currentTime = window.player.getCurrentTime(); // Podemos capturar o tempo de reprodução do video do Youtube:
 
-                // Se o vídeo atingir ou passar do limite definido, reseta para o início de forma síncrona
+                // Se o tempo atual do vídeo atingir ou passar do limite de tempo final loop do cartão (com uma margem de 0.05 segundos), basta resetar o loop:
                 if (currentTime >= window.endTime - 0.05) {
                     window.player.seekTo(window.startTime, true);
                 }
             } catch (e) {
-                console.warn("Erro no ciclo do loop do vídeo:", e);
+                console.warn("Erro no ciclo do loop do vídeo:", e); // Aviso qualquer erro para o console.
             }
 
-            loopRAFRevisao = requestAnimationFrame(verificarTempo);
+            loopRAFRevisao = requestAnimationFrame(verificarTempo); // Aqui, garanto que essa função seja executada frame a frame.
         }
 
-        verificarTempo();
+        verificarTempo(); // Aqui, executo a função manualmente apenas uma vez, para que depois ela mesmo continue auto-executando com a linha loopRAFRevisao = requestAnimationFrame(verificarTempo);.
     }
 
-    // 4. Engine de renderização de cards com Transição Inteligente e Força de Autoplay
+    // Aqui, vem a função que renderiza o trecho do vídeo correspondente ao Card:
     function renderizarCardAtualRevisao() {
+        // Começo obtendo o objeto correspondente ao Card do índice atual do array de Cards global:
         const card = window.cardsDoDeckAtual[window.indiceCardRevisao];
         if (!card) return;
 
-        // Armazena temporariamente o ID do vídeo anterior antes de atualizar as variáveis globais
+        // Aproveito para armazenar temporariamente o ID do vídeo anterior, antes de atualizar as variáveis globais:
         const videoIdAnterior = window.player && typeof window.player.getVideoData === "function" 
             ? window.player.getVideoData().video_id 
             : null;
 
-        // Atualiza e crava os tempos estritos no escopo global
+        // Aqui, apenas padronizo as variáveis globais que controlam o tempo de início e fim do loop do Card, para evitar conflitos de nomes:
         window.startTime = card.start_time !== undefined ? card.start_time : card.tempo_inicio;
         window.endTime = card.end_time !== undefined ? card.end_time : card.tempo_fim;
 
-        // Renderiza o texto do card na div de Legendas
+        // Depois disso, renderizo a legenda do Card:
         const elLegenda = document.getElementById("legenda");
         if (elLegenda) {
             if (typeof window.renderizarLegenda === "function") {
@@ -172,12 +194,17 @@
             }
         }
 
-        // Para animações antigas correndo em background
+        // Aqui, apenas paro animações antigas que possam estar em background:
         if (loopRAFRevisao) cancelAnimationFrame(loopRAFRevisao);
 
-        // Cenário A: Mesmo vídeo detectado!
+        // Depois disso, existem 3 casos possíveis:
+        // CASO 1 - Pode ser que o Card que será revisando agora venha do mesmo vídeo do card que ele revisou imediatamente anterior.
+        // CASO 2 - Pode ser que seja diferente.
+        // CASO 3 - Pode ser a primeira vez que a página carrega um vídeo.
+
+        // CASO 1 - É o caso com a transição mais suave, pois o vídeo já está carregado na memória do navegador.
         if (window.player && typeof window.player.seekTo === "function" && videoIdAnterior === card.video_id) {
-            console.log("Mesmo vídeo detectado! Fazendo transição instantânea via seekTo...");
+            console.log("Mesmo vídeo detectado. Fazendo transição instantânea via seekTo...");
             
             window.player.seekTo(window.startTime, true);
             
@@ -187,9 +214,9 @@
                 gerenciarLoopDoVideo();
             }
         } 
-        // Cenário B: VÍDEO DIFERENTE DETECTADO! (Usa loadVideoById para dar o play imediato)
+        // CASO 2 - É o caso onde a transição é menos fluida:
         else if (window.player && typeof window.player.loadVideoById === "function") {
-            console.log("Vídeo diferente detectado! Forçando carregamento e play automático...");
+            console.log("Vídeo diferente detectado. Forçando carregamento e play automático...");
             
             const overlay = document.getElementById("protecaoPlayer");
             const jaIniciouEstudos = overlay && overlay.style.display === "none";
@@ -213,9 +240,9 @@
                 });
             }
         } 
-        // Cenário C: Criação do player do zero (primeiro carregamento da página)
+        // CASO 3 - Primeiro carregamento de vídeo da página:
         else {
-            console.log("Criando instância inicial estável do Player de Revisão...");
+            console.log("Criando instância inicial do Player de Revisão...");
             
             const container = document.getElementById("playerContainer");
             let playerDiv = document.getElementById("player");
@@ -251,7 +278,7 @@
         }
     }
 
-    // 5. Configuração do clique no botão "Iniciar Estudos"
+    // Configuração do clique no botão "Iniciar Estudos":
     const btnIniciar = document.getElementById("protecaoButton");
     if (btnIniciar) {
         btnIniciar.onclick = () => {
@@ -265,7 +292,7 @@
         };
     }
 
-    // 6. Função global interna para avançar cards e gerenciar o fim do Deck
+    // Função para avaliar se depois de o usuário avaliar um Card, o próximo pode ser renderizado, ou se acabaram os Cards para serem revisados no Deck por enquanto:
     function avancarFilaDeCards() {
         if (window.indiceCardRevisao + 1 < window.cardsDoDeckAtual.length) {
             window.indiceCardRevisao++;
@@ -273,13 +300,14 @@
         } else {
             resetarEstadoGlobalRevisao();
             
-            alert("Parabéns! Você concluiu todos os cards deste deck.");
+            alert("Você finalizou a revisão dos Cards deste deck.");
             htmx.ajax('GET', '/revisao', { target: 'main', swap: 'innerHTML' });
             window.history.pushState({}, "", '/revisao');
         }
     }
 
-    // 7. Função para capturar a dificuldade, salvar no banco e acionar o avanço
+    // Função para capturar a dificuldade quando o usuário clicar, salvar no BD e avançar automaticamente para o próximo Card.
+    // Aproveito também para atualizar a data de revisão do Card a depender do botão de dificuldade que ele clicou, usando a ROTA 6 do main.py:
     function enviarDificuldade(opcao) {
         const cardAtual = window.cardsDoDeckAtual[window.indiceCardRevisao];
         if (!cardAtual) return;
@@ -312,18 +340,19 @@
             });
     }
 
-    // 7.5. Função para deletar o card atual do Banco de Dados e avançar a fila
+    // Função para tornar funcional o ícone da lixeira na página, tornando possível o usuário deletar um Card enquanto revisa ele.
+    // Após a deleção, avanço para o próximo Card automaticamente:
     function deletarCardAtual() {
         const cardAtual = window.cardsDoDeckAtual[window.indiceCardRevisao];
         if (!cardAtual) return;
 
-        // Dispara a confirmação nativa que você já tinha planejado
+        // Disparo o aviso de confirmação para deleções:
         const confirmar = confirm("Deseja mesmo excluir este card permanentemente?");
         if (!confirmar) return;
 
         console.log(`Solicitando exclusão do Card ID: ${cardAtual.id}`);
 
-        // Faz a requisição de deleção para o backend
+        // Faço a requisição para a ROTA 8 do main.py:
         fetch(`/api/deletar_card/${cardAtual.id}`, { method: 'DELETE' })
             .then(res => {
                 if (!res.ok) throw new Error("Falha ao deletar o card no servidor.");
@@ -333,17 +362,17 @@
                 if (dados.status === "sucesso") {
                     console.log("Card removido com sucesso do BD.");
                     
-                    // Remove o card da nossa lista local na memória para não ser exibido novamente
+                    // E então removo o card do array de Cards do Deck local na memória, para não ser exibido novamente:
                     window.cardsDoDeckAtual.splice(window.indiceCardRevisao, 1);
 
-                    // Como removemos o item da lista, o próximo card assume a mesma posição do índice atual.
+                    // Como removemos o item da lista, o próximo Card assume a mesma posição do índice atual.
                     // Mas precisamos checar se o card deletado era o ÚLTIMO da lista:
                     if (window.indiceCardRevisao >= window.cardsDoDeckAtual.length) {
-                        // Se era o último, precisamos decrementar para não quebrar o array antes de avançar
+                        // Se era o último, precisamos decrementar, para não quebrar o array antes de avançar
                         window.indiceCardRevisao = window.cardsDoDeckAtual.length - 1;
                     }
 
-                    // Força a renderização do próximo card disponível ou finaliza o deck se esvaziou
+                    // E então já começa a renderização do próximo card disponível, ou finaliza o Deck se não houverem mais Cards.
                     if (window.cardsDoDeckAtual.length > 0 && window.indiceCardRevisao >= 0) {
                         renderizarCardAtualRevisao();
                     } else {
@@ -361,14 +390,13 @@
             });
     }
 
-    // 8. Vinculação dos Eventos de Clique nos Botões do DOM
+    // Aqui, só configuro os botões de dificuldade e da lixeira, para se tornarem funcionais:
     document.getElementById("facil").onclick = () => enviarDificuldade("facil");
     document.getElementById("medio").onclick = () => enviarDificuldade("medio");
     document.getElementById("dificil").onclick = () => enviarDificuldade("dificil");
     document.getElementById("delete").onclick = () => deletarCardAtual();
 
-    // LÓGICA DE LIMPEZA ABSOLUTA DE EVENTOS:
-    // Se o usuário clicar em "Voltar", mudar de rota via htmx ou sair por links externos:
+    // Por fim, por questão de limpeza também, forço a página a resetar seu estado, sempre que o usuário sair dela ou carregar ela:
     window.addEventListener('beforeunload', resetarEstadoGlobalRevisao);
     document.addEventListener('htmx:beforeLeave', resetarEstadoGlobalRevisao);
 
