@@ -5,18 +5,26 @@ from sqlmodel import Field, Relationship, SQLModel
 from zoneinfo import ZoneInfo
 
 # Modelo para os Decks:
+
+# Essencialmente, um Deck virá a possuir 3 atributos:
+
+# id = Um ID numérico para cada um dos Decks.
+# nome = Um nome, que será dado pelo próprio usuário (ou será o nome padrão "Deck").
+# cards = Chave estrangeira para poder relacionar o Deck aos seus Cards.
+
 class Deck(SQLModel, table=True):
     """Modelo de baralhos, agrupando cartões criados pelo usuário."""
     id: Optional[int] = Field(default=None, primary_key=True) 
     nome: str = Field(min_length=1, index=True, unique=True) 
 
-    cards: List["Card"] = Relationship(back_populates="deck", cascade_delete = True) # Aqui, relaciono o Deck com todos os Cards dele.　Se o Deck for deletado, todos os seus Cards também são.
+    cards: List["Card"] = Relationship(back_populates="deck", cascade_delete = True) # Aqui, relaciono o Deck com todos os Cards dele.　Se o Deck for deletado, todos os seus Cards também são, por conta do cascade_delete = True.
 
 # Modelo para os Cards:
+
 class Card(SQLModel, table=True):
     """Modelo dos Cards salvos para revisão espaçada, vinculados a um Deck e rastreando o vídeo de origem."""
-    id: Optional[int] = Field(default=None, primary_key=True)
-    texto_legenda: str = Field(min_length=1)
+    id: Optional[int] = Field(default=None, primary_key=True) # id = Um ID numérico para cada um dos Cards.
+    texto_legenda: str = Field(min_length=1) # texto_legenda = O bloco de legenda em si que o Card contém.
 
    # Rastreamento do vídeo do YouTube que deu origem a esse Card:
 
